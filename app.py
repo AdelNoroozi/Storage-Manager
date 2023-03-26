@@ -9,10 +9,8 @@ storages = []
 
 class Storage(Resource):
     def get(self, name):
-        for storage in storages:
-            if storage['name'] == name:
-                return storage, 200
-        return {'storage': None}, 404
+        storage = next(filter(lambda x: x['name'] == name, storages), None)
+        return {'storage': storage}, 200 if storage else 404
 
     def post(self, name):
         data = request.get_json()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous and it is only useful for easier testing
