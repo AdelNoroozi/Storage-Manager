@@ -1,29 +1,72 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+storages = [
+    {
+        'name': 'Sattarkhan',
+        'cargos': [
+            {
+                'name': '10kg rice bag',
+                'quantity': 5
+            },
+            {
+                'name': '200g tea box',
+                'quantity': 11
+            }
+        ]
+    },
+    {
+        'name': 'Koshtargah',
+        'cargos': [
+            {
+                'name': 'Gucci Bag',
+                'quantity': 55
+            }
+        ]
+    }
+]
 
-@app.route('/storage', methods=['POST'])
+
+@app.route('/storages', methods=['POST'])
 def create_storage():
-    pass
+    request_data = request.get_json()
+    new_storage = {
+        'name': request_data['name'],
+        'cargos': []
+    }
+    storages.append(new_storage)
+    return jsonify(new_storage)
 
 
-@app.route('/storage/<string:storage_name>')
+@app.route('/storages/<string:storage_name>')
 def retrieve_storage(storage_name):
-    pass
+    for storage in storages:
+        if storage['name'] == storage_name:
+            return jsonify(storage)
+    return jsonify({'message': 'not found'})
 
 
-@app.route('/storage')
+@app.route('/storages')
 def get_storage_list():
-    pass
+    return jsonify({'storages': storages})
 
 
-@app.route('/storage/<storage_name>/cargos', methods=['POST'])
+@app.route('/storages/<storage_name>/cargos', methods=['POST'])
 def create_cargo(storage_name):
-    pass
+    request_data = request.get_json()
+    for storage in storages:
+        if storage['name'] == storage_name:
+            new_cargo = {
+                'name': request_data['name'],
+                'quantity': request_data['quantity']
+            }
+            storage['cargos'].append(new_cargo)
+            return jsonify(new_cargo)
+    return jsonify({'message': 'not found'})
 
 
-@app.route('/storage/<storage_name>/cargos')
+@app.route('/storages/<storage_name>/cargos')
 def get_cargo_list(storage_name):
     pass
 
