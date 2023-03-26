@@ -1,9 +1,13 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
+from flask_jwt import JWT, jwt_required
+
+from security import authenticate, identity
 
 app = Flask(__name__)
+app.secret_key = 'thisisnotasecretsecretkeyitsasecretkeythatisnotconsideredasecretsecretkey'
 api = Api(app)
-
+jwt = JWT(app, authenticate, identity)
 storages = []
 
 
@@ -12,6 +16,7 @@ class Storage(Resource):
         storage = next(filter(lambda x: x['name'] == name, storages), None)
         return {'storage': storage}, 200 if storage else 404
 
+    @jwt_required()
     def post(self, name):
         if next(filter(lambda x: x['name'] == name, storages), None) is not None:
             return {'message': f'storage with name {name} already exists'}, 400
