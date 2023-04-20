@@ -55,12 +55,15 @@ class UserRegister(Resource):
         connection = sqlite3.connect('dbsqlite3.db')
         cursor = connection.cursor()
         username = data['username']
-        password = data['password']
-        query = "INSERT INTO users VALUES (NULL, ?, ?)"
-        cursor.execute(query, (username, password))
-        connection.commit()
-        connection.close()
-        user = User.find_by_username(username)
-        user_json = {"id": user.id,
-                     "username": user.username}
-        return user_json, 201
+        if User.find_by_username(username):
+            return {'message': "username already exists"}
+        else:
+            password = data['password']
+            query = "INSERT INTO users VALUES (NULL, ?, ?)"
+            cursor.execute(query, (username, password))
+            connection.commit()
+            connection.close()
+            user = User.find_by_username(username)
+            user_json = {"id": user.id,
+                         "username": user.username}
+            return user_json, 201
