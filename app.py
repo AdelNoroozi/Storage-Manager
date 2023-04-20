@@ -1,5 +1,5 @@
 from flask import Flask, request
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 from flask_jwt import JWT, jwt_required
 
 from security import authenticate, identity
@@ -20,6 +20,7 @@ class Storage(Resource):
     def post(self, name):
         if next(filter(lambda x: x['name'] == name, storages), None) is not None:
             return {'message': f'storage with name {name} already exists'}, 400
+
         data = request.get_json()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous and it is only useful for easier testing
         storage = {'name': name, 'is_available': data['is_available']}
         storages.append(storage)
@@ -28,7 +29,7 @@ class Storage(Resource):
     @jwt_required()
     def delete(self, name):
         global storages
-        storage = next(filter(lambda x:x['name'] == name, storages), None)
+        storage = next(filter(lambda x: x['name'] == name, storages), None)
         if storage is None:
             return {'message': 'storage not found'}, 404
         else:
@@ -37,7 +38,13 @@ class Storage(Resource):
 
     @jwt_required()
     def put(self, name):
-        data = request.get_json()
+        parser = reqparse.RequestParser()
+        parser.add_argument('is_available',
+                            type=str,
+                            required=True,
+                            help="missing field: is_available"
+                            )
+        data = parser.parse_args()
         storage = next(filter(lambda x: x['name'] == name, storages), None)
         if storage is None:
             storage = {'name': name, 'is_available': data['is_available']}
