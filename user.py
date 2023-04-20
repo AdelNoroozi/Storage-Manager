@@ -1,4 +1,6 @@
+import json
 import sqlite3
+from flask_restful import Resource, reqparse
 
 
 class User:
@@ -26,7 +28,6 @@ class User:
     def find_by_id(cls, _id):
         connection = sqlite3.connect('dbsqlite3.db')
         cursor = connection.cursor()
-
         query = "SELECT * FROM users WHERE id=?"
         result = cursor.execute(query, (_id,))
         row = result.fetchone()
@@ -36,3 +37,30 @@ class User:
             user = None
         connection.close()
         return user
+
+
+class UserRegister(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('username',
+                        type=str,
+                        required=True,
+                        help="missing field: username")
+    parser.add_argument('password',
+                        type=str,
+                        required=True,
+                        help="missing field: password")
+
+    def post(self):
+        data = UserRegister.parser.parse_args()
+        connection = sqlite3.connect('dbsqlite3.db')
+        cursor = connection.cursor()
+        username = data['username']
+        password = data['password']
+        query = "INSERT INTO users VALUES (NULL, ?, ?)"
+        cursor.execute(query, (username, password))
+        connection.commit()
+        connection.close()
+        user = User.find_by_username(username)
+        user_json = {"id": user.id,
+                     "username": user.username}
+        return user_json, 201

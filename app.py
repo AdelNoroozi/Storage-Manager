@@ -3,6 +3,7 @@ from flask_restful import Resource, Api, reqparse
 from flask_jwt import JWT, jwt_required
 
 from security import authenticate, identity
+from user import UserRegister
 
 app = Flask(__name__)
 app.secret_key = 'thisisnotasecretsecretkeyitsasecretkeythatisnotconsideredasecretsecretkey'
@@ -60,5 +61,6 @@ class StorageList(Resource):
 
 api.add_resource(Storage, '/api/storages/<string:name>')
 api.add_resource(StorageList, '/api/storages')
+api.add_resource(UserRegister, '/api/users/register')
 
 app.run(port=5001, debug=True)
