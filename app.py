@@ -28,15 +28,18 @@ class Storage(Resource):
     @jwt_required()
     def delete(self, name):
         global storages
-        storages = list(filter(lambda x: x['name'] != name, storages))
-        return {'message': f'storage with name {name} deleted'}, 200
+        storage = next(filter(lambda x:x['name'] == name, storages), None)
+        if storage is None:
+            return {'message': 'storage not found'}, 404
+        else:
+            storages = list(filter(lambda x: x['name'] != name, storages))
+            return {'message': f'storage with name {name} deleted'}, 200
 
     @jwt_required()
     def put(self, name):
         data = request.get_json()
         storage = next(filter(lambda x: x['name'] == name, storages), None)
         if storage is None:
-            # return {'message': 'storage not found'}, 404
             storage = {'name': name, 'is_available': data['is_available']}
             storages.append(storage)
         else:
