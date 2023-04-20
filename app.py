@@ -25,6 +25,12 @@ class Storage(Resource):
         storages.append(storage)
         return storage, 201
 
+    @jwt_required()
+    def delete(self, name):
+        global storages
+        storages = list(filter(lambda x: x['name'] != name, storages))
+        return {'message': f'storage with name {name} deleted'}
+
 
 class StorageList(Resource):
     def get(self):
