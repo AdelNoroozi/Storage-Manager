@@ -3,6 +3,7 @@ from flask_restful import Resource, Api, reqparse
 from flask_jwt import JWT, jwt_required
 
 from security import authenticate, identity
+from user import UserRegister
 
 app = Flask(__name__)
 app.secret_key = 'thisisnotasecretsecretkeyitsasecretkeythatisnotconsideredasecretsecretkey'
@@ -12,6 +13,12 @@ storages = []
 
 
 class Storage(Resource):
+    storage_parser = reqparse.RequestParser()
+    storage_parser.add_argument('is_available',
+                                type=str,
+                                required=True,
+                                help="missing field: is_available")
+
     def get(self, name):
         storage = next(filter(lambda x: x['name'] == name, storages), None)
         return {'storage': storage}, 200 if storage else 404
@@ -20,13 +27,7 @@ class Storage(Resource):
     def post(self, name):
         if next(filter(lambda x: x['name'] == name, storages), None) is not None:
             return {'message': f'storage with name {name} already exists'}, 400
-        parser = reqparse.RequestParser()
-        parser.add_argument('is_available',
-                            type=str,
-                            required=True,
-                            help="missing field: is_available")
-
-        data = parser.parse_args()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous and it is only useful for easier testing
+        data = Storage.storage_parser.parse_args()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous and it is only useful for easier testing
         storage = {'name': name, 'is_available': data['is_available']}
         storages.append(storage)
         return storage, 201
@@ -43,13 +44,7 @@ class Storage(Resource):
 
     @jwt_required()
     def put(self, name):
-        parser = reqparse.RequestParser()
-        parser.add_argument('is_available',
-                            type=str,
-                            required=True,
-                            help="missing field: is_available"
-                            )
-        data = parser.parse_args()
+        data = Storage.storage_parser.parse_args()
         storage = next(filter(lambda x: x['name'] == name, storages), None)
         if storage is None:
             storage = {'name': name, 'is_available': data['is_available']}
@@ -66,5 +61,6 @@ class StorageList(Resource):
 
 api.add_resource(Storage, '/api/storages/<string:name>')
 api.add_resource(StorageList, '/api/storages')
+api.add_resource(UserRegister, '/api/users/register')
 
 app.run(port=5001, debug=True)
