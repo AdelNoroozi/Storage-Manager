@@ -56,14 +56,15 @@ class UserRegister(Resource):
         cursor = connection.cursor()
         username = data['username']
         if User.find_by_username(username):
-            return {'message': "username already exists"}
-        else:
-            password = data['password']
-            query = "INSERT INTO users VALUES (NULL, ?, ?)"
-            cursor.execute(query, (username, password))
-            connection.commit()
-            connection.close()
-            user = User.find_by_username(username)
-            user_json = {"id": user.id,
-                         "username": user.username}
-            return user_json, 201
+            return {'message': "username already exists"}, 400
+        password = data['password']
+        if len(password) < 8:
+            return {'message': "password is too short"}, 400
+        query = "INSERT INTO users VALUES (NULL, ?, ?)"
+        cursor.execute(query, (username, password))
+        connection.commit()
+        connection.close()
+        user = User.find_by_username(username)
+        user_json = {"id": user.id,
+                     "username": user.username}
+        return user_json, 201
