@@ -20,8 +20,13 @@ class Storage(Resource):
     def post(self, name):
         if next(filter(lambda x: x['name'] == name, storages), None) is not None:
             return {'message': f'storage with name {name} already exists'}, 400
+        parser = reqparse.RequestParser()
+        parser.add_argument('is_available',
+                            type=str,
+                            required=True,
+                            help="missing field: is_available")
 
-        data = request.get_json()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous and it is only useful for easier testing
+        data = parser.parse_args()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous and it is only useful for easier testing
         storage = {'name': name, 'is_available': data['is_available']}
         storages.append(storage)
         return storage, 201
