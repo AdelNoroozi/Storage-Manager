@@ -15,4 +15,5 @@ api.add_resource(Storage, '/api/storages/<string:name>')
 api.add_resource(StorageList, '/api/storages')
 api.add_resource(UserRegister, '/api/users/register')
 
-app.run(port=5001, debug=True)
+if __name__ == '__main__':
+    app.run(port=5001, debug=True)

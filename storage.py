@@ -10,7 +10,8 @@ class Storage(Resource):
                                 required=True,
                                 help="missing field: is_available")
 
-    def get(self, name):
+    @classmethod
+    def find_by_name(cls, name):
         connection = sqlite3.connect('dbsqlite3.db')
         cursor = connection.cursor()
         query = "SELECT * FROM storages WHERE name=?"
@@ -22,16 +23,27 @@ class Storage(Resource):
                 'name': row[0],
                 'is_available': row[1]
             }}, 200
+
+    def get(self, name):
+        storage = Storage.find_by_name(name=name)
+        if storage:
+            return storage
         else:
-            return {'message': "item not found"}, 404
+            return {'message': "storage not found"}, 404
 
     @jwt_required()
     def post(self, name):
-        if next(filter(lambda x: x['name'] == name, storages), None) is not None:
-            return {'message': f'storage with name {name} already exists'}, 400
+
+        if Storage.find_by_name(name=name):
+            return {'message': f"storage with name {name} already exists"}, 400
         data = Storage.storage_parser.parse_args()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous, and it is only useful for easier testing
         storage = {'name': name, 'is_available': data['is_available']}
-        storages.append(storage)
+        connection = sqlite3.connect('dbsqlite3.db')
+        cursor = connection.cursor()
+        query = "INSERT INTO storages VALUES (?, ?)"
+        cursor.execute(query, (storage['name'], storage['is_available']))
+        connection.commit()
+        connection.close()
         return storage, 201
 
     @jwt_required()
