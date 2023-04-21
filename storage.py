@@ -31,18 +31,25 @@ class Storage(Resource):
         else:
             return {'message': "storage not found"}, 404
 
-    @jwt_required()
-    def post(self, name):
-        if Storage.find_by_name(name=name):
-            return {'message': f"storage with name {name} already exists"}, 400
-        data = Storage.storage_parser.parse_args()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous, and it is only useful for easier testing
-        storage = {'name': name, 'is_available': data['is_available']}
+    @classmethod
+    def insert(cls, storage):
         connection = sqlite3.connect('dbsqlite3.db')
         cursor = connection.cursor()
         query = "INSERT INTO storages VALUES (?, ?)"
         cursor.execute(query, (storage['name'], storage['is_available']))
         connection.commit()
         connection.close()
+
+    @jwt_required()
+    def post(self, name):
+        if Storage.find_by_name(name=name):
+            return {'message': f"storage with name {name} already exists"}, 400
+        data = Storage.storage_parser.parse_args()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous, and it is only useful for easier testing
+        storage = {'name': name, 'is_available': data['is_available']}
+        try:
+            Storage.insert(storage=storage)
+        except:
+            return {'message': "something went wrong"}, 500
         return storage, 201
 
     @jwt_required()
@@ -57,10 +64,32 @@ class Storage(Resource):
         connection.close()
         return {'message': "storage deleted successfully"}, 200
 
+    @classmethod
+    def update(cls, storage):
+        connection = sqlite3.connect('dbsqlite3.db')
+        cursor = connection.cursor()
+        query = "UPDATE storages SET is_available=? WHERE name=?"
+        cursor.execute(query, (storage['is_available'], storage['name']))
+        connection.commit()
+        connection.close()
 
     @jwt_required()
     def put(self, name):
-        # data = Storage.storage_parser.parse_args()
+        data = Storage.storage_parser.parse_args()
+        storage = Storage.find_by_name(name)
+        patched_storage = {'name': name, 'is_available': data['is_available']}
+        if storage is None:
+            try:
+                Storage.insert(storage=patched_storage)
+            except:
+                return {'message': "something went wrong"}, 500
+        else:
+            try:
+                Storage.update(storage=patched_storage)
+            except:
+                return {'message': "something went wrong"}, 500
+        return patched_storage, 200
+
         # storage = next(filter(lambda x: x['name'] == name, storages), None)
         # if storage is None:
         #     storage = {'name': name, 'is_available': data['is_available']}
@@ -68,7 +97,7 @@ class Storage(Resource):
         # else:
         #     storage.update(data)
         # return storage, 200
-        pass
+
 
 
 class StorageList(Resource):
