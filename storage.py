@@ -90,17 +90,20 @@ class Storage(Resource):
                 return {'message': "something went wrong"}, 500
         return patched_storage, 200
 
-        # storage = next(filter(lambda x: x['name'] == name, storages), None)
-        # if storage is None:
-        #     storage = {'name': name, 'is_available': data['is_available']}
-        #     storages.append(storage)
-        # else:
-        #     storage.update(data)
-        # return storage, 200
-
-
 
 class StorageList(Resource):
-    # def get(self):
-    #     return {'storages': storages}
-    pass
+    def get(self):
+        connection = sqlite3.connect('dbsqlite3.db')
+        cursor = connection.cursor()
+        query = "SELECT * FROM storages"
+        result = cursor.execute(query)
+        storages = []
+        for row in result:
+            storages.append(
+                {
+                    'name': row[0],
+                    'is_available': row[1]
+                }
+            )
+        connection.close()
+        return {'storages': storages}
