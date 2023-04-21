@@ -12,7 +12,7 @@ class Storage(Resource):
 
     @classmethod
     def find_by_name(cls, name):
-        connection = sqlite3.connect('dbsqlite3.db')
+        connection = sqlite3.connect('./dbsqlite3.db')
         cursor = connection.cursor()
         query = "SELECT * FROM storages WHERE name=?"
         result = cursor.execute(query, (name,))
@@ -33,7 +33,7 @@ class Storage(Resource):
 
     @classmethod
     def insert(cls, storage):
-        connection = sqlite3.connect('dbsqlite3.db')
+        connection = sqlite3.connect('./dbsqlite3.db')
         cursor = connection.cursor()
         query = "INSERT INTO storages VALUES (?, ?)"
         cursor.execute(query, (storage['name'], storage['is_available']))
@@ -56,7 +56,7 @@ class Storage(Resource):
     def delete(self, name):
         if not Storage.find_by_name(name):
             return {'message': "storage not found"}, 404
-        connection = sqlite3.connect('dbsqlite3.db')
+        connection = sqlite3.connect('./dbsqlite3.db')
         cursor = connection.cursor()
         query = "DELETE FROM storages WHERE name=?"
         cursor.execute(query, (name,))
@@ -66,7 +66,7 @@ class Storage(Resource):
 
     @classmethod
     def update(cls, storage):
-        connection = sqlite3.connect('dbsqlite3.db')
+        connection = sqlite3.connect('./dbsqlite3.db')
         cursor = connection.cursor()
         query = "UPDATE storages SET is_available=? WHERE name=?"
         cursor.execute(query, (storage['is_available'], storage['name']))
@@ -93,7 +93,7 @@ class Storage(Resource):
 
 class StorageList(Resource):
     def get(self):
-        connection = sqlite3.connect('dbsqlite3.db')
+        connection = sqlite3.connect('./dbsqlite3.db')
         cursor = connection.cursor()
         query = "SELECT * FROM storages"
         result = cursor.execute(query)

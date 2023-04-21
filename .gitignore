@@ -535,3 +535,7 @@ fabric.properties
 /test/storageDB.db
 /test/
 /this just creates the database and dies.py
+/test/dbtest.py
+/test/storageDB.db
+/test/
+/this just creates the database and dies.py

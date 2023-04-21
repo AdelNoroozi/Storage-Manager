@@ -3,8 +3,8 @@ from flask_restful import Api
 from flask_jwt import JWT
 
 from security import authenticate, identity
-from storage import Storage, StorageList
-from user import UserRegister
+from resources.storage import Storage, StorageList
+from resources.user import UserRegister
 
 app = Flask(__name__)
 app.secret_key = 'thisisnotasecretsecretkeyitsasecretkeythatisnotconsideredasecretsecretkey'

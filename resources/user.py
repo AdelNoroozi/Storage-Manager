@@ -11,7 +11,7 @@ class User:
 
     @classmethod
     def find_by_username(cls, username):
-        connection = sqlite3.connect('dbsqlite3.db')
+        connection = sqlite3.connect('./dbsqlite3.db')
         cursor = connection.cursor()
 
         query = "SELECT * FROM users WHERE username=?"
@@ -26,7 +26,7 @@ class User:
 
     @classmethod
     def find_by_id(cls, _id):
-        connection = sqlite3.connect('dbsqlite3.db')
+        connection = sqlite3.connect('./dbsqlite3.db')
         cursor = connection.cursor()
         query = "SELECT * FROM users WHERE id=?"
         result = cursor.execute(query, (_id,))
@@ -52,7 +52,7 @@ class UserRegister(Resource):
 
     def post(self):
         data = UserRegister.parser.parse_args()
-        connection = sqlite3.connect('dbsqlite3.db')
+        connection = sqlite3.connect('./dbsqlite3.db')
         cursor = connection.cursor()
         username = data['username']
         if User.find_by_username(username):
