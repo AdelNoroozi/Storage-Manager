@@ -33,7 +33,6 @@ class Storage(Resource):
 
     @jwt_required()
     def post(self, name):
-
         if Storage.find_by_name(name=name):
             return {'message': f"storage with name {name} already exists"}, 400
         data = Storage.storage_parser.parse_args()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous, and it is only useful for easier testing
@@ -48,26 +47,31 @@ class Storage(Resource):
 
     @jwt_required()
     def delete(self, name):
-        global storages
-        storage = next(filter(lambda x: x['name'] == name, storages), None)
-        if storage is None:
-            return {'message': 'storage not found'}, 404
-        else:
-            storages = list(filter(lambda x: x['name'] != name, storages))
-            return {'message': f'storage with name {name} deleted'}, 200
+        if not Storage.find_by_name(name):
+            return {'message': "storage not found"}, 404
+        connection = sqlite3.connect('dbsqlite3.db')
+        cursor = connection.cursor()
+        query = "DELETE FROM storages WHERE name=?"
+        cursor.execute(query, (name,))
+        connection.commit()
+        connection.close()
+        return {'message': "storage deleted successfully"}, 200
+
 
     @jwt_required()
     def put(self, name):
-        data = Storage.storage_parser.parse_args()
-        storage = next(filter(lambda x: x['name'] == name, storages), None)
-        if storage is None:
-            storage = {'name': name, 'is_available': data['is_available']}
-            storages.append(storage)
-        else:
-            storage.update(data)
-        return storage, 200
+        # data = Storage.storage_parser.parse_args()
+        # storage = next(filter(lambda x: x['name'] == name, storages), None)
+        # if storage is None:
+        #     storage = {'name': name, 'is_available': data['is_available']}
+        #     storages.append(storage)
+        # else:
+        #     storage.update(data)
+        # return storage, 200
+        pass
 
 
 class StorageList(Resource):
-    def get(self):
-        return {'storages': storages}
+    # def get(self):
+    #     return {'storages': storages}
+    pass
