@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_restful import Api
 from flask_jwt import JWT
+
+from resources.cargo import Cargo
 from security import authenticate, identity
 from resources.storage import Storage, StorageList
 from resources.user import UserRegister
@@ -19,6 +21,7 @@ def create_tables():
 
 
 api.add_resource(Storage, '/api/storages/<string:name>')
+api.add_resource(Cargo, '/api/cargos/<string:name>')
 api.add_resource(StorageList, '/api/storages')
 api.add_resource(UserRegister, '/api/users/register')
 
