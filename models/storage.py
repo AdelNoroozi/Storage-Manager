@@ -1,7 +1,14 @@
 import sqlite3
 
+from db import db
 
-class StorageModel:
+
+class StorageModel(db.Model):
+    __tablename__ = 'storages'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    is_available = db.Column(db.String(10))
+
     def __init__(self, name, is_available):
         self.name = name
         self.is_available = is_available
