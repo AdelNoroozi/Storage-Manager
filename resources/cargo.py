@@ -45,3 +45,10 @@ class Cargo(Resource):
                 return {'message': 'something went wrong'}, 500
         cargo.save()
         return cargo.json(), 200
+
+    def delete(self, name):
+        cargo = CargoModel.find_by_name(name)
+        if cargo is None:
+            return {'message': 'cargo not found'}, 404
+        cargo.delete()
+        return {'message': 'cargo deleted successfully'}, 20
