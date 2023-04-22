@@ -539,3 +539,4 @@ fabric.properties
 /test/storageDB.db
 /test/
 /this just creates the database and dies.py
+/SMVenv/
