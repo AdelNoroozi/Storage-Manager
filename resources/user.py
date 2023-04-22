@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from flask_restful import Resource, reqparse
+from db import db
 
 from models.user import UserModel
 
@@ -31,6 +32,6 @@ class UserRegister(Resource):
         # connection.commit()
         # connection.close()
         user_obj = UserModel(username=username, password=password)
-        user_obj.save(lo=4)
+        user_obj.save()
         user_json = {"username": user_obj.username}
         return user_json, 201

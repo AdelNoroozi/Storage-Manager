@@ -71,17 +71,19 @@ class Storage(Resource):
 
 class StorageList(Resource):
     def get(self):
-        connection = sqlite3.connect('./dbsqlite3.db')
-        cursor = connection.cursor()
-        query = "SELECT * FROM storages"
-        result = cursor.execute(query)
-        storages = []
-        for row in result:
-            storages.append(
-                {
-                    'name': row[0],
-                    'is_available': row[1]
-                }
-            )
-        connection.close()
-        return {'storages': storages}
+        # connection = sqlite3.connect('./dbsqlite3.db')
+        # cursor = connection.cursor()
+        # query = "SELECT * FROM storages"
+        # result = cursor.execute(query)
+        # storages = []
+        # for row in result:
+        #     storages.append(
+        #         {
+        #             'name': row[0],
+        #             'is_available': row[1]
+        #         }
+        #     )
+        # connection.close()
+        # return {'storages': 'storages'}
+        return {'storages': [storage.json() for storage in SM.query.all()]}
+        # return {'storages': list(map(lambda x: x.json(), SM.query.all()))}
