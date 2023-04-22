@@ -52,3 +52,8 @@ class Cargo(Resource):
             return {'message': 'cargo not found'}, 404
         cargo.delete()
         return {'message': 'cargo deleted successfully'}, 20
+
+
+class CargoList(Resource):
+    def get(self):
+        return {'cargos': [cargo.json() for cargo in CargoModel.query.all()]}
