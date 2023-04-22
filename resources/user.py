@@ -18,19 +18,19 @@ class UserRegister(Resource):
 
     def post(self):
         data = UserRegister.parser.parse_args()
-        connection = sqlite3.connect('./dbsqlite3.db')
-        cursor = connection.cursor()
+        # connection = sqlite3.connect('./dbsqlite3.db')
+        # cursor = connection.cursor()
         username = data['username']
         if UserModel.find_by_username(username):
             return {'message': "username already exists"}, 400
         password = data['password']
         if len(password) < 8:
             return {'message': "password is too short"}, 400
-        query = "INSERT INTO users VALUES (NULL, ?, ?)"
-        cursor.execute(query, (username, password))
-        connection.commit()
-        connection.close()
-        user = UserModel.find_by_username(username)
-        user_json = {"id": user.id,
-                     "username": user.username}
+        # query = "INSERT INTO users VALUES (NULL, ?, ?)"
+        # cursor.execute(query, (username, password))
+        # connection.commit()
+        # connection.close()
+        user_obj = UserModel(username=username, password=password)
+        user_obj.save(lo=4)
+        user_json = {"username": user_obj.username}
         return user_json, 201

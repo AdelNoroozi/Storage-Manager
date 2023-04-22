@@ -2,7 +2,7 @@ from flask_restful import reqparse, Resource
 from flask_jwt import jwt_required
 import sqlite3
 
-from models.storage import StorageModel
+from models.storage import StorageModel as SM
 
 
 class Storage(Resource):
@@ -13,7 +13,7 @@ class Storage(Resource):
                                 help="missing field: is_available")
 
     def get(self, name):
-        storage = StorageModel.find_by_name(name=name)
+        storage = SM.find_by_name(name=name)
         if storage:
             return storage.json()
         else:
@@ -21,46 +21,52 @@ class Storage(Resource):
 
     @jwt_required()
     def post(self, name):
-        if StorageModel.find_by_name(name=name):
+        if SM.find_by_name(name=name):
             return {'message': f"storage with name {name} already exists"}, 400
         data = Storage.storage_parser.parse_args()  # by using 'force = True' we can bypass content type header in our request, however it,s dangerous, and it is only useful for easier testing
         is_available = data['is_available']
-        storage = StorageModel(name, is_available)
+        storage = SM(name, is_available)
         try:
-            storage.insert()
+            storage.save()
         except:
             return {'message': "something went wrong"}, 500
         return storage.json(), 201
 
     @jwt_required()
     def delete(self, name):
-        if not StorageModel.find_by_name(name):
+        # if not StorageModel.find_by_name(name):
+        #     return {'message': "storage not found"}, 404
+        # connection = sqlite3.connect('./dbsqlite3.db')
+        # cursor = connection.cursor()
+        # query = "DELETE FROM storages WHERE name=?"
+        # cursor.execute(query, (name,))
+        # connection.commit()
+        # connection.close()
+        # return {'message': "storage deleted successfully"}, 200
+        storage = SM.find_by_name(name)
+        if storage:
+            storage.delete()
+            return {'message': "storage deleted successfully"}, 200
+        else:
             return {'message': "storage not found"}, 404
-        connection = sqlite3.connect('./dbsqlite3.db')
-        cursor = connection.cursor()
-        query = "DELETE FROM storages WHERE name=?"
-        cursor.execute(query, (name,))
-        connection.commit()
-        connection.close()
-        return {'message': "storage deleted successfully"}, 200
 
     @jwt_required()
     def put(self, name):
         data = Storage.storage_parser.parse_args()
-        storage = StorageModel.find_by_name(name)
+        storage = SM.find_by_name(name)
         is_available = data['is_available']
-        patched_storage = StorageModel(name=name, is_available=is_available)
         if storage is None:
             try:
-                patched_storage.insert()
+                storage = SM(name, is_available)
             except:
                 return {'message': "something went wrong"}, 500
         else:
             try:
-                patched_storage.update()
+                storage.is_available = is_available
             except:
                 return {'message': "something went wrong"}, 500
-        return patched_storage.json(), 200
+        storage.save()
+        return storage.json(), 200
 
 
 class StorageList(Resource):
