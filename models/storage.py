@@ -8,13 +8,15 @@ class StorageModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
     is_available = db.Column(db.String(10))
+    cargos = db.relationship('CargoModel', lazy='dynamic')
 
     def __init__(self, name, is_available):
         self.name = name
         self.is_available = is_available
 
     def json(self):
-        return {'name': self.name, 'is_available': self.is_available}
+        return {'name': self.name, 'is_available': self.is_available,
+                'cargos': [cargo.json() for cargo in self.cargos.all()]}
 
     @classmethod
     def find_by_name(cls, name):
