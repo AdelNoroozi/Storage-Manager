@@ -21,6 +21,7 @@ class Cargo(Resource):
         else:
             return cargo.json(), 200
 
+    @jwt_required()
     def post(self, name):
         if CargoModel.find_by_name(name):
             return {'message': f'cargo with the name {name} already exists'}, 401
@@ -34,6 +35,7 @@ class Cargo(Resource):
             return {'message': 'something went wrong'}, 500
         return cargo.json(), 201
 
+    @jwt_required()
     def put(self, name):
         data = Cargo.cargo_parser.parse_args()
         quantity = data['quantity']
@@ -53,6 +55,7 @@ class Cargo(Resource):
         cargo.save()
         return cargo.json(), 200
 
+    @jwt_required()
     def delete(self, name):
         cargo = CargoModel.find_by_name(name)
         if cargo is None:
